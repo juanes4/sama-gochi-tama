@@ -1,0 +1,15 @@
+DASHBOARD IoT - Equipo 01 (version web, sin instalar nada)
+
+COMO VERLO EN VISUAL STUDIO CODE
+1) Abre la carpeta "dashboard_web" (Archivo > Abrir carpeta).
+2) Extensiones (Ctrl+Shift+X): instala "Live Server" (Ritwick Dey).
+3) Clic derecho en index.html > "Open with Live Server".
+   (Tambien funciona con doble clic sobre index.html.)
+
+PRIMERA VEZ
+- Pulsa el boton del engranaje y escribe usuario y contrasena de EMQX.
+- El puerto es el de WebSocket seguro (8084), NO el 8883.
+- Sin broker? Pulsa el boton ▶ de la barra lateral: Modo demo con datos simulados.
+
+El estado de bomba/ventilador/toldo es ESTIMADO con la misma logica del sketch.ino
+(los actuadores no publican su estado).

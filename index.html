@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard IoT · Equipo 01</title>
+<style>
+:root{--bg:#e7e6e2;--frame:#f3f2ef;--card:#fff;--accent:#f0453b;--soft:#fde8e5;--ink:#1b1b1d;--muted:#8c8c92;--line:#e9e7e3;--ok:#2ea36a;--warn:#e9a21b}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Manrope,"Segoe UI",system-ui,sans-serif;font-size:14px}
+button{font:inherit;cursor:pointer;color:inherit}
+.frame{margin:18px;padding:14px;background:var(--frame);border:3px solid #fff;border-radius:30px;display:grid;grid-template-columns:250px 1fr;gap:16px;min-height:calc(100vh - 36px)}
+aside{display:flex;flex-direction:column;gap:12px}
+.card{background:var(--card);border-radius:22px;padding:18px;box-shadow:0 6px 16px rgba(0,0,0,.05);overflow:hidden;position:relative;min-width:0}
+.card h3{margin:0;font-size:15px;font-weight:800;display:flex;justify-content:space-between;align-items:center;gap:8px}
+.muted{color:var(--muted)} .small{font-size:11.5px}
+.row{display:flex;align-items:center;gap:10px}
+.pill{border:1px solid var(--accent);color:var(--accent);background:transparent;border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700}
+.pill.on{background:var(--accent);color:#fff}
+.dark .pill{border-color:#fff;color:#fff}.dark .pill.on{background:#fff;color:var(--accent)}
+.chip{display:inline-block;padding:3px 9px;border-radius:8px;font-size:11px;font-weight:800;white-space:nowrap}
+.round{width:34px;height:34px;border-radius:50%;border:0;background:var(--accent);color:#fff;display:grid;place-items:center;font-size:15px}
+.round.w{background:#fff;color:var(--ink)}
+.avatar{width:40px;height:40px;border-radius:50%;background:var(--soft);display:grid;place-items:center;color:var(--accent);font-weight:800}
+.nav button{display:flex;width:100%;align-items:center;gap:10px;height:42px;border:0;border-radius:12px;background:transparent;padding:0 12px;font-weight:700;font-size:13px;margin-bottom:2px;text-align:left}
+.nav button.on{background:var(--accent);color:#fff}
+.nav .badge{margin-left:auto;background:var(--accent);color:#fff;border-radius:10px;padding:2px 7px;font-size:10.5px}
+.nav .on .badge{background:#fff;color:var(--accent)}
+.red{background:var(--accent);color:#fff}
+.red .big{font-size:40px;font-weight:800;line-height:1.1}
+.quick{display:flex;justify-content:space-around;padding:8px}
+.quick button{width:38px;height:38px;border:0;border-radius:12px;background:transparent;font-size:18px}
+.quick button.on{background:var(--soft);color:var(--accent)}
+.add{height:112px;border:1.5px dashed rgba(240,69,59,.55);border-radius:22px;background:transparent;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;font-weight:800;font-size:12.5px}
+main{min-width:0;display:flex;flex-direction:column;gap:16px}
+.top{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.top h1{margin:0;font-size:26px;font-weight:800}
+.topic{border:1.4px solid var(--line);background:#fff;border-radius:18px;padding:6px 12px;font-size:12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:320px}
+.link{margin-left:auto;background:#fff;border-radius:18px;padding:8px 12px;font-size:12.5px;font-weight:800;display:flex;align-items:center;gap:8px}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block}
+.banner{background:var(--soft);color:var(--accent);border-radius:14px;padding:10px 14px;font-weight:700;font-size:12.5px;display:flex;gap:10px;align-items:center}
+.hero{height:270px;padding:0}
+.hero .bg,.hero svg.chart{position:absolute;inset:0;width:100%;height:100%}
+.hero .chips{position:absolute;left:18px;top:16px;display:flex;gap:8px;flex-wrap:wrap}
+.hero .plot{position:absolute;left:250px;right:300px;top:56px;bottom:14px}
+.hero .plot svg{width:100%;height:100%;display:block}
+.kpi{position:absolute;left:22px;top:58px;width:210px;bottom:18px;display:flex;flex-direction:column}
+.kpi .v{font-size:34px;font-weight:800}
+.alerts{position:absolute;right:16px;bottom:16px;width:272px;background:rgba(255,255,255,.95);border:1px solid var(--line);border-radius:14px;padding:12px}
+.bar{height:5px;border-radius:4px;background:var(--line);overflow:hidden}.bar i{display:block;height:100%;background:var(--accent);transition:width .4s}
+.grid2{display:grid;grid-template-columns:5fr 2fr 3fr;gap:16px;height:240px}
+.grid3{display:grid;grid-template-columns:4fr 3fr 3fr;gap:16px;height:230px}
+.cells{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);border-radius:14px;margin-top:10px;height:calc(100% - 78px)}
+.cells>div{padding:10px 12px;border-right:1px solid var(--line);display:flex;flex-direction:column;justify-content:center;gap:5px;min-width:0}
+.cells>div:last-child{border:0}
+.cells .n{font-size:24px;font-weight:800}.cells .n small{font-size:12px;color:var(--muted);font-weight:600}
+.log{display:flex;flex-direction:column;padding:14px 16px 12px}
+#logList{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:6px;margin:6px 0}
+.b{max-width:230px;padding:7px 11px;border-radius:14px;background:var(--frame);font-size:11.5px;font-weight:600}
+.b small{display:block;font-size:9.5px;color:var(--muted);font-weight:500}
+.b.me{align-self:flex-end;background:var(--accent);color:#fff}.b.me small{color:#ffe}
+.sys{text-align:center;font-size:10.5px;color:var(--muted)}
+.send{display:flex;border:1px solid var(--line);border-radius:20px;padding:0 4px 0 12px;height:38px;align-items:center}
+.send input{flex:1;border:0;outline:0;font:inherit;font-size:12px;min-width:0}
+.send .round{width:30px;height:30px}
+.dots{background-image:radial-gradient(rgba(255,255,255,.25) 1.2px,transparent 1.3px);background-size:14px 14px}
+table{width:100%;border-collapse:collapse}th{font-size:11.5px;color:var(--muted);text-align:left;padding:6px 0}td{padding:9px 0;border-top:1px solid var(--line);font-weight:600}
+.page{display:none}.page.on{display:block}
+.scroll{overflow:auto;max-height:calc(100vh - 160px)}
+dialog{border:0;border-radius:24px;padding:24px;width:min(480px,92vw)}
+dialog::backdrop{background:rgba(0,0,0,.35)}
+dialog h2{margin:0 0 6px}
+dialog label{display:block;font-size:12px;color:var(--muted);margin-top:10px}
+dialog input{width:100%;padding:9px 11px;border:0;border-radius:12px;background:var(--frame);font:inherit;margin-top:3px}
+dialog .act{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+dialog .act button{border:0;border-radius:12px;padding:9px 16px;font-weight:700;background:var(--frame)}
+dialog .act .go{background:var(--accent);color:#fff}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;font-size:12.5px;opacity:0;transition:.3s;pointer-events:none}
+@keyframes pulse{0%{transform:scale(1);opacity:.35}100%{transform:scale(2.6);opacity:0}}
+.halo{transform-box:fill-box;transform-origin:center;animation:pulse 1.6s infinite}
+#awnPanel{transition:transform .7s ease-in-out}
+.lucide{width:18px;height:18px;stroke-width:2.2;flex-shrink:0}
+.round .lucide{width:16px;height:16px}
+.nav .lucide{width:17px;height:17px}
+.avatar .lucide{width:20px;height:20px}
+.card h3 .muted .lucide{width:15px;height:15px}
+#qPause .i-play,#qPause.on .i-pause{display:none}#qPause.on .i-play{display:inline-block}
+.stale{opacity:.5;transition:opacity .3s}
+.discr{outline:3px solid var(--warn);outline-offset:2px}
+.link.warnbox{background:var(--soft);color:var(--accent)}
+.b.bad{background:#fdecea;color:#b3261e}
+.sw{display:inline-block;width:14px;height:3px;border-radius:2px;vertical-align:middle;margin-right:5px}.sw.dash{height:0;border-top:2px dashed #8c8c92;background:none}
+@media(max-width:1050px){.frame{grid-template-columns:1fr}.grid2,.grid3{grid-template-columns:1fr;height:auto}.grid2>.card,.grid3>.card{height:235px}.hero .kpi,.hero .alerts{display:none}.hero .plot{left:20px;right:20px}}
+</style>
+</head>
+<body>
+<div class="frame">
+<aside>
+  <div class="row" style="padding:4px"><div class="avatar" style="width:40px"><i data-lucide="user"></i></div><div><div class="muted small">Hola de nuevo,</div><b id="uName">Operador</b></div></div>
+  <div class="card row" style="padding:12px"><div class="avatar" style="background:var(--frame);color:var(--ink);border-radius:12px">E1</div><div><div class="muted small">Proyecto</div><b style="font-size:13px">Equipo 01 · Invernadero</b></div></div>
+  <div class="card nav" style="padding:8px">
+    <button data-page="dashboard" class="on"><i data-lucide="layout-dashboard"></i> Dashboard</button>
+    <button data-page="historial"><i data-lucide="history"></i> Historial</button>
+    <button data-page="alertas"><i data-lucide="bell"></i> Alertas <span class="badge" id="alertBadge" hidden>0</span></button>
+  </div>
+  <div class="card red dark" style="padding:16px">
+    <h3>Mensajes <span class="small" id="linkTxt"></span></h3>
+    <div class="row" style="margin:10px 0;flex-wrap:wrap;gap:6px" id="statPills"></div>
+    <div><span class="big" id="statVal">0</span> <b>&nbsp;msg</b></div>
+    <div class="small" style="opacity:.85" id="statSub">Desde que abriste la página</div>
+  </div>
+  <div class="card quick">
+    <button id="qRe" title="Reconectar"><i data-lucide="refresh-cw"></i></button><button id="qPause" title="Pausar recepción"><i data-lucide="pause" class="i-pause"></i><i data-lucide="play" class="i-play"></i></button>
+    <button id="qClr" title="Limpiar historial"><i data-lucide="trash-2"></i></button><button id="qCsv" title="Descargar CSV"><i data-lucide="download"></i></button>
+    <button id="qDemo" title="Modo demo (datos simulados)"><i data-lucide="flask-conical"></i></button>
+  </div>
+  <button class="add" id="openSet"><span class="round"><i data-lucide="settings"></i></span>Configurar broker</button>
+</aside>
+
+<main>
+  <div class="top"><h1 id="title">Monitoreo del invernadero</h1><div class="topic" id="topicPill"></div>
+    <div class="link"><span class="dot" id="linkDot"></span><span id="linkLbl">Sin conexión</span></div>
+    <div class="link" id="actLink" style="margin-left:0"><span class="dot" id="actDot"></span><span id="actLbl">Actuadores</span></div>
+    <button class="round w" id="openSet2" title="Ajustes del broker"><i data-lucide="settings"></i></button></div>
+  <div class="banner" id="banner" hidden><span id="bannerTxt" style="flex:1"></span><button class="pill on" id="retry">Reintentar</button></div>
+  <div class="banner" id="discBar" hidden style="background:#fff3dc;color:#9a5b00;align-items:flex-start"><i data-lucide="triangle-alert"></i><div id="discTxt" style="flex:1;display:flex;flex-direction:column;gap:3px"></div></div>
+
+  <section class="page on" id="p-dashboard">
+    <div style="display:flex;flex-direction:column;gap:16px">
+    <div class="card hero">
+      <svg class="bg" id="mapBg" preserveAspectRatio="none"></svg>
+      <div class="chips" id="varChips"></div>
+      <div class="plot" id="plot"><svg id="liveSvg"></svg></div>
+      <div class="kpi">
+        <div class="muted small" id="kLbl"></div><div class="v" id="kVal">--</div><div class="muted small" id="kRange"></div>
+        <div style="flex:1"></div>
+        <div class="muted small" id="kThr"></div>
+        <div class="row" style="margin:4px 0 8px"><b style="font-size:24px" id="kPct">0%</b><div class="bar" style="flex:1"><i id="kBar" style="width:0"></i></div></div>
+        <div class="row"><button class="pill on" id="hClr">Limpiar</button><button class="pill" id="hHist">Historial</button></div>
+      </div>
+      <div class="alerts"><div class="row" style="justify-content:space-between"><span class="muted small"><b>Alertas y notificaciones</b></span><span class="round" style="width:24px;height:24px;font-size:12px"><i data-lucide="bell" style="width:13px;height:13px"></i></span></div><div id="miniAlerts" style="margin-top:8px"></div></div>
+    </div>
+
+    <div class="grid2">
+      <div class="card"><h3>Sensores <span class="muted small" id="lastRead">—</span></h3>
+        <div class="row" style="margin-top:8px"><div class="avatar" style="width:32px;height:32px;font-size:15px"><i data-lucide="cpu"></i></div><div style="flex:1;min-width:0"><b style="font-size:13px">ESP32 · sensores</b><div class="muted small" id="topicSm" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div></div><span class="chip" id="sensChip"></span></div>
+        <div class="cells">
+          <div><span class="muted small"><b>Humedad · S1</b></span><span class="n" id="n1">--</span><div class="bar"><i id="b1"></i></div><span><span class="chip" id="c1"></span></span></div>
+          <div><span class="muted small"><b>Temperatura · S2</b></span><span class="n" id="n2">--</span><div class="bar"><i id="b2"></i></div><span><span class="chip" id="c2"></span></span></div>
+          <div><span class="muted small"><b>Luz · S3</b></span><span class="n" id="n3">--</span><div class="bar"><i id="b3"></i></div><span><span class="chip" id="c3"></span></span></div>
+        </div></div>
+      <div class="card" id="pumpCard"><h3>Bomba de riego <span class="chip" id="pumpChip"></span></h3>
+        <div class="row" style="margin-top:10px"><div style="position:relative;width:76px;height:76px;flex-shrink:0"><svg width="76" height="76" viewBox="0 0 76 76"><circle cx="38" cy="38" r="34" fill="none" stroke="#e9e7e3" stroke-width="8"/><circle id="ring" cx="38" cy="38" r="34" fill="none" stroke="#f0453b" stroke-width="8" stroke-linecap="round" stroke-dasharray="0 214" transform="rotate(-90 38 38)" style="transition:stroke-dasharray .45s"/></svg><span id="drop" style="position:absolute;inset:0;display:grid;place-items:center;color:var(--accent);transition:opacity .3s"><i data-lucide="droplet" style="width:26px;height:26px"></i></span></div>
+          <div style="min-width:0"><div style="font-weight:800;font-size:12.5px" id="pumpReg">—</div><div class="muted small" id="pumpPasos"></div><div style="margin-top:6px;font-weight:800;font-size:12.5px" id="pumpCnt">Riegos confirmados: 0</div></div></div>
+        <div class="muted small" style="position:absolute;left:18px;right:18px;bottom:16px" id="pumpFoot">Riega si humedad &lt; 50 %</div></div>
+      <div class="card" id="awnCard"><h3>Toldo <span class="chip" id="awnChip"></span></h3>
+        <div class="row" style="height:calc(100% - 24px)">
+          <svg viewBox="0 0 150 110" style="flex:1;min-width:0;max-height:100%"><defs><pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="#f0453b"/><rect width="3.5" height="8" fill="rgba(255,255,255,.55)"/></pattern></defs>
+            <line x1="0" y1="104" x2="150" y2="104" stroke="#e9e7e3" stroke-width="2"/><line x1="33" y1="104" x2="33" y2="64" stroke="#b9b6b0" stroke-width="5" stroke-linecap="round"/><line x1="126" y1="104" x2="126" y2="64" stroke="#b9b6b0" stroke-width="5" stroke-linecap="round"/><line x1="33" y1="64" x2="126" y2="64" stroke="#d3d0cb" stroke-width="3" stroke-linecap="round"/>
+            <circle id="sun" cx="135" cy="15" r="7" fill="#e2dfda"/><g transform="translate(33 64)"><g id="awnPanel"><rect x="0" y="-9" width="56" height="9" rx="4" fill="url(#hatch)"/></g><circle r="3.5" fill="#1b1b1d"/></g></svg>
+          <div><div style="font-size:34px;font-weight:800" id="awnPct">0%</div><div class="muted small">Apertura</div><div style="margin-top:8px;font-weight:800;font-size:12px" id="awnAng">Servo 0°</div><div class="muted small">Abre si luz &gt; 60 %</div></div></div></div>
+    </div>
+
+    <div class="grid3">
+      <div class="card"><h3><span>Causa → efecto <span class="muted small" style="font-weight:600">últimos 2 min</span></span><button class="round" style="width:30px;height:30px" id="trCsv" title="Descargar CSV de actuadores"><i data-lucide="download"></i></button></h3>
+        <div class="muted" style="display:flex;flex-wrap:wrap;gap:2px 12px;margin-top:4px;font-size:10.5px;font-weight:600"><span><span class="sw" style="background:#f0453b"></span>Vent. real %</span><span><span class="sw dash" style="border-color:#1b1b1d"></span>Objetivo</span><span><span class="sw dash"></span>Temp. 25→75 °C</span><span><span class="sw" style="background:#3b82f6;height:8px"></span>Riego</span><span><span class="sw dash"></span>Humedad</span></div>
+        <div id="trWrap" style="height:calc(100% - 62px);margin-top:4px"><svg id="trSvg" width="100%" height="100%"></svg></div></div>
+      <div class="card red dark dots" id="fanCard" style="padding:18px"><h3 style="color:#fff"><span class="row" style="gap:8px"><i data-lucide="fan"></i>Ventilador</span><span class="chip" id="fanChip" style="background:rgba(255,255,255,.22);color:#fff"></span></h3>
+        <div id="fanWrap" style="position:absolute;left:18px;right:18px;top:46px;bottom:62px"><svg id="fanSvg" width="100%" height="100%" viewBox="0 0 200 110" preserveAspectRatio="xMidYMid meet"></svg></div>
+        <div class="small" style="position:absolute;left:18px;right:18px;bottom:12px" id="fanTxt"></div></div>
+      <div class="card log"><h3>Registro MQTT <span class="muted small" id="logCnt"></span></h3><div id="logList"></div><div class="small" style="color:var(--accent);font-weight:700;min-height:0" id="sendErr"></div>
+        <div class="send"><input id="sendIn" placeholder="Probar: S1=40;S2=30;S3=70 o JSON de actuadores"><button class="round" id="sendBtn" title="Publicar"><i data-lucide="send"></i></button></div></div>
+    </div></div>
+  </section>
+
+  <section class="page" id="p-historial"><div style="display:flex;flex-direction:column;gap:16px"><div class="card"><h3>Historial de sensores <span class="muted small" id="hCnt"></span></h3><div class="scroll" style="max-height:42vh"><table><thead><tr><th>HORA</th><th>HUMEDAD · S1</th><th>TEMPERATURA · S2</th><th>LUZ · S3</th></tr></thead><tbody id="hBody"></tbody></table></div></div>
+    <div class="card"><h3>Historial de actuadores <span class="muted small" id="haCnt"></span></h3><div class="scroll" style="max-height:42vh"><table><thead><tr><th>HORA</th><th>BOMBA</th><th>VENTILADOR</th><th>TOLDO</th></tr></thead><tbody id="haBody"></tbody></table></div></div></div></section>
+  <section class="page" id="p-alertas"><div class="card"><h3>Alertas y eventos <span class="muted small" id="aCnt"></span></h3><div class="scroll" id="aList"></div></div></section>
+</main>
+</div>
+
+<dialog id="dlg"><h2>Conexión al broker EMQX</h2>
+  <div class="muted small">Usa un usuario creado para el dashboard (EMQX → Authentication). Se guarda solo en este navegador. Aquí va el puerto <b>WebSocket seguro</b> (normalmente 8084), no el 8883.</div>
+  <label>Host<input id="fHost"></label><div class="row"><label style="flex:1">Puerto WSS<input id="fPort"></label><label style="flex:1">Ruta<input id="fPath"></label></div>
+  <label>Tópico de sensores<input id="fTopic"></label>
+  <label>Tópico de actuadores<input id="fTopicAct"></label>
+  <div class="row"><label style="flex:1">Usuario<input id="fUser" autocomplete="off"></label><label style="flex:1">Contraseña<input id="fPass" type="password" autocomplete="off"></label></div>
+  <label>Tu nombre<input id="fName"></label>
+  <div class="small" style="color:var(--accent);font-weight:700;margin-top:8px" id="fErr"></div>
+  <div class="act"><button id="fCancel">Cancelar</button><button class="go" id="fSave">Guardar y conectar</button></div></dialog>
+<div id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/mqtt@5.16.1/dist/mqtt.min.js" onerror="this.onerror=null;var s=document.createElement('script');s.src='mqtt.min.js';document.head.appendChild(s)"></script>
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<script>
+"use strict";
+/* ===== Umbrales del firmware: SOLO para detectar discrepancias, nunca para deducir el estado de un actuador ===== */
+const R={humedadRiego:50,tMin:25,tMax:75,vMax:1000,luz:60,stale:15000,actOffline:6000,riegoMax:15000,gracia:6000};
+// Velocidad que el firmware pediría para una temperatura (misma fórmula del sketch, con trunc). Sirve para saber si "debería" girar.
+const pasos=t=>{const v=Math.trunc((Math.trunc(t)-R.tMin)*R.vMax/(R.tMax-R.tMin));return Math.max(0,Math.min(R.vMax,v))};
+const VARS={temperatura:{label:'Temperatura',unit:'°C',span:6,min:null,max:null,get:s=>s.t,ok:s=>s.t<=R.tMin,thr:'temperatura ≤ 25 °C'},
+ humedad:{label:'Humedad',unit:'%',span:20,min:0,max:100,get:s=>s.h,ok:s=>s.h>=R.humedadRiego,thr:'humedad ≥ 50 %'},
+ luz:{label:'Luz',unit:'%',span:20,min:0,max:100,get:s=>s.l,ok:s=>s.l<=R.luz,thr:'luz ≤ 60 %'}};
+function parse(raw){
+  const x=String(raw).trim(); if(!x||x.length>=100) throw Error('tamaño inválido');
+  const v={}; for(const p of x.split(';')){const kv=p.split('='); if(kv.length!==2) throw Error('formato malformado (usa S1=..;S2=..;S3=..)');
+    const n=Number(kv[1].trim()); if(kv[1].trim()===''||!isFinite(n)) throw Error('valor inválido en '+kv[0]); v[kv[0].trim()]=n;}
+  if(Object.keys(v).length!==3||v.S1===undefined||v.S2===undefined||v.S3===undefined) throw Error('deben venir S1, S2 y S3');
+  if(v.S1<0||v.S1>100||v.S2<-40||v.S2>125||v.S3<0||v.S3>100) throw Error('valores fuera de rango');
+  return {time:Date.now(),h:v.S1,t:v.S2,l:v.S3};
+}
+/* JSON de equipo01/actuadores/datos. Devuelve null si está mal formado (el mensaje se ignora). */
+const isB=x=>typeof x==='boolean',isN=x=>typeof x==='number'&&isFinite(x),isO=x=>x!==null&&typeof x==='object'&&!Array.isArray(x);
+function parseAct(raw){
+  let j; try{j=JSON.parse(String(raw))}catch(e){return null}
+  if(!isO(j)||!isN(j.ts)||!isO(j.bomba)||!isO(j.ventilador)||!isO(j.toldo)) return null;
+  const b=j.bomba,v=j.ventilador,t=j.toldo;
+  if(!isB(b.activa)||!isB(b.regando)||!isN(b.pasos)) return null;
+  if(!isB(v.activo)||!isN(v.objetivo)||!isN(v.pasos_s)||!isN(v.porcentaje)) return null;
+  if(!isN(t.angulo)||(t.estado!=='abierto'&&t.estado!=='cerrado')) return null;
+  return {time:Date.now(),ts:j.ts,activa:b.activa,regando:b.regando,pasosB:b.pasos,fanOn:v.activo,obj:v.objetivo,real:v.pasos_s,
+    pct:Math.max(0,Math.min(100,v.porcentaje)),ang:t.angulo,estado:t.estado};
+}
+/* ===== Estado ===== */
+const store={get(k,d){try{return localStorage.getItem(k)??d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+const cfg={host:store.get('host','ob1cb7cb.ala.us-east-1.emqxsl.com'),port:store.get('port','8084'),path:store.get('path','/mqtt'),
+  topic:store.get('topic','equipo01/sensores/datos'),topicAct:store.get('topicAct','equipo01/actuadores/datos'),
+  user:store.get('user',''),pass:store.get('pass',''),name:store.get('name','Operador')};
+const S={link:'disconnected',detail:null,hist:[],last:null,rx:0,rej:0,reco:0,paused:false,stat:'rx',cv:'temperatura',page:'dashboard',demo:null,fault:null,connAt:null,
+  act:null,actHist:[],actRx:0,actRej:0,riegos:0,lastPumpActive:null,actSt:'nolink',
+  cond:{riego:null,fan:null,toldo:null},disc:{riego:null,fan:null,toldo:null},events:[],log:[]};
+let client=null;
+const $=id=>document.getElementById(id), hms=d=>new Date(d).toTimeString().slice(0,8), f1=n=>Number(n).toFixed(1);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function ev(level,title,detail=''){S.events.unshift({time:Date.now(),level,title,detail}); if(S.events.length>80) S.events.length=80}
+function sys(t){addLog('sys',t)}
+function addLog(dir,text,tag=''){S.log.push({time:Date.now(),dir,text,tag}); if(S.log.length>120) S.log.shift()}
+function toast(t){const e=$('toast');e.textContent=t;e.style.opacity=1;clearTimeout(toast.t);toast.t=setTimeout(()=>e.style.opacity=0,2200)}
+
+/* ===== MQTT (WebSocket seguro) ===== */
+function setLink(st,detail=null){
+  const ch=st!==S.link; S.link=st; S.detail=detail;
+  if(ch){ if(st==='connecting') sys(`Conectando a ${cfg.host}:${cfg.port}…`);
+    if(st==='connected'){S.connAt=Date.now();sys(`Conectado · suscrito a ${cfg.topic} y ${cfg.topicAct}`);ev('ok','Conectado a EMQX',cfg.host)}
+    if(st==='reconnecting'){S.reco++;sys('Conexión perdida, reintentando…');ev('warn','Reconectando','Se perdió la conexión con el broker')}
+    if(st==='disconnected') sys(detail||'Desconectado');
+    if(st==='error'){sys(detail||'Error');ev('error','Error de conexión',detail||'')} }
+  check();render();
+}
+function disconnect(){ if(client){try{client.removeAllListeners();client.end(true)}catch(e){} client=null} }
+function connect(){
+  disconnect();
+  if(!cfg.user){setLink('error','Configura el usuario y la contraseña del broker.');return}
+  if(typeof mqtt==='undefined'){setLink('error','No se cargó la librería MQTT (revisa internet o copia mqtt.min.js junto a index.html).');return}
+  setLink('connecting');
+  const url=`wss://${cfg.host}:${cfg.port}${cfg.path}`;
+  try{ client=mqtt.connect(url,{username:cfg.user,password:cfg.pass,clientId:'dashboard-web-'+Math.random().toString(16).slice(2,8),clean:true,keepalive:30,reconnectPeriod:4000,connectTimeout:8000}); }
+  catch(e){setLink('error',String(e.message||e));return}
+  client.on('connect',()=>{setLink('connected');client.subscribe([cfg.topic,cfg.topicAct],{qos:0})});
+  client.on('reconnect',()=>{if(S.link!=='reconnecting'&&S.link!=='connecting') setLink('reconnecting')});
+  client.on('close',()=>{if(S.link==='connected') setLink('reconnecting')});
+  client.on('error',e=>{const m=String(e&&e.message||e);
+    setLink('error',/auth|user|password|refused/i.test(m)?'EMQX rechazó el usuario o la contraseña.':'No se pudo conectar por WebSocket seguro. Revisa host y puerto (8084) y que esta red permita salir por ese puerto.')});
+  client.on('message',(t,p)=>onMessage(t,p.toString()));
+}
+function onMessage(topic,payload){
+  if(S.paused) return;
+  if(topic===cfg.topicAct) return onAct(payload);
+  addLog('in',payload,'Sensores');
+  try{const s=parse(payload); S.rx++; S.last=s; S.hist.push(s); if(S.hist.length>300) S.hist.shift(); updateCond(s)}
+  catch(e){S.rej++; ev('warn','Mensaje de sensores rechazado',e.message)}
+  check();render();
+}
+function onAct(payload){
+  const a=parseAct(payload);
+  if(!a){S.actRej++;addLog('bad',String(payload).slice(0,90),'Actuadores · ignorado (JSON mal formado)');render();return}
+  addLog('in',`Bomba ${a.activa?'activa':'off'}${a.regando?' · regando':''} · Vent. ${Math.round(a.pct)} % · Toldo ${a.ang}°`,'Actuadores');
+  const prev=S.act; S.act=a; S.actRx++; S.actHist.push(a); if(S.actHist.length>400) S.actHist.shift();
+  if(a.activa) S.lastPumpActive=a.time;
+  if(a.regando&&!(prev&&prev.regando)) S.riegos++;
+  if(prev){
+    if(a.regando!==prev.regando) ev(a.regando?'info':'ok',a.regando?'Bomba: riego iniciado':'Bomba: riego terminado',`Confirmado por el ESP32 · ${a.pasosB} pasos`);
+    if(a.fanOn!==prev.fanOn) ev('info',a.fanOn?'Ventilador encendido':'Ventilador apagado',`Real ${a.real} pasos/s · objetivo ${a.obj}`);
+    if(a.ang!==prev.ang) ev('info',a.estado==='abierto'?'Toldo abierto':'Toldo cerrado',`Servo ${a.ang}°`);
+  }
+  check();render();
+}
+function publishRaw(text){
+  const x=text.trim(),isAct=x.startsWith('{'),topic=isAct?cfg.topicAct:cfg.topic;
+  if(isAct){if(!parseAct(x)) return 'JSON de actuadores inválido (faltan campos o tienen otro tipo).'}
+  else{try{parse(x)}catch(e){return 'Formato inválido: '+e.message}}
+  if(S.demo){addLog('out',x,'Enviado → '+topic);onMessage(topic,x);return null}
+  if(!client||!client.connected) return 'Sin conexión con el broker.';
+  client.publish(topic,x); addLog('out',x,'Enviado → '+topic); render(); return null;
+}
+/* ===== Causa (sensor) vs. efecto (confirmación del actuador) ===== */
+function updateCond(s){
+  const c={riego:s.h<R.humedadRiego,fan:pasos(s.t)>0,toldo:s.l>R.luz};
+  for(const k in c) S.cond[k]=c[k]?(S.cond[k]??s.time):null;   // desde cuándo el sensor pide que el actuador actúe
+}
+function check(){
+  const now=Date.now(),live=S.link==='connected'||!!S.demo;
+  const st=!live?'nolink':S.act&&S.act.time>=(S.connAt||0)?(now-S.act.time>R.actOffline?'offline':'online'):(S.connAt&&now-S.connAt>R.actOffline?'offline':'waiting');
+  if(st!==S.actSt){
+    if(st==='offline') ev('error','Actuadores sin conexión',`No llega nada de ${cfg.topicAct} hace más de ${R.actOffline/1000} s`);
+    if(st==='online'&&S.actSt==='offline') ev('ok','Actuadores en línea','Volvieron a llegar mensajes');
+    S.actSt=st;
+  }
+  const s=S.last,a=S.act,c=S.cond,ok=st==='online'&&s&&now-s.time<=R.stale;   // sin enlace o sin datos frescos no se juzga
+  const D={
+    riego:ok&&c.riego!==null&&now-c.riego>R.riegoMax&&(S.lastPumpActive===null||now-S.lastPumpActive>R.riegoMax)
+      ?`Humedad ${f1(s.h)} % (< 50 %) y la bomba no reporta activa:true hace más de ${R.riegoMax/1000} s`:null,
+    fan:ok&&c.fan!==null&&now-c.fan>R.gracia&&!a.fanOn
+      ?`Temperatura ${f1(s.t)} °C (> 25 °C) y ventilador.activo=false (objetivo ${a.obj}, real ${a.real} pasos/s)`:null,
+    toldo:ok&&c.toldo!==null&&now-c.toldo>R.gracia&&a.ang!==90
+      ?`Luz ${f1(s.l)} % (> 60 %) y el toldo reporta "${a.estado}" (${a.ang}°)`:null};
+  const N={riego:'bomba',fan:'ventilador',toldo:'toldo'};
+  for(const k in D){
+    if(!!D[k]!==!!S.disc[k]){ if(D[k]) ev('error','Discrepancia: '+N[k],D[k]); else ev('ok','Discrepancia resuelta: '+N[k],'La confirmación del actuador ya coincide con el sensor') }
+    S.disc[k]=D[k];
+  }
+}
+/* ===== Dibujo SVG ===== */
+function smooth(p){let d=`M${p[0][0]},${p[0][1]}`;for(let i=0;i<p.length-1;i++){const p0=p[i-1]||p[i],p1=p[i],p2=p[i+1],p3=p[i+2]||p2;
+  d+=`C${p1[0]+(p2[0]-p0[0])/6},${p1[1]+(p2[1]-p0[1])/6} ${p2[0]-(p3[0]-p1[0])/6},${p2[1]-(p3[1]-p1[1])/6} ${p2[0]},${p2[1]}`}return d}
+function drawMapBg(){const el=$('mapBg'),W=1200,H=300;el.setAttribute('viewBox',`0 0 ${W} ${H}`);let a=7;const r=()=>(a=(a*16807)%2147483647)/2147483647;let h='';
+  for(let i=0;i<6;i++)h+=`<rect x="${r()*W}" y="${r()*H}" width="${70+r()*130}" height="${34+r()*80}" rx="12" fill="#fbe4e1"/>`;
+  for(let x=0;x<W;x+=56)h+=`<line x1="${x}" y1="0" x2="${x}" y2="${H}" stroke="#f0eeea"/>`;
+  for(let y=0;y<H;y+=56)h+=`<line x1="0" y1="${y}" x2="${W}" y2="${y}" stroke="#f0eeea"/>`;
+  for(let i=0;i<22;i++){let d=`M${r()*W},${r()*H}`;for(let j=0;j<3;j++)d+=`L${r()*W},${r()*H}`;h+=`<path d="${d}" fill="none" stroke="#e6e3de" stroke-width="1.4"/>`}
+  el.innerHTML=h}
+function liveChart(){
+  const v=VARS[S.cv],box=$('plot').getBoundingClientRect(),W=Math.max(200,box.width),H=Math.max(120,box.height),svg=$('liveSvg');
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  const vals=S.hist.slice(-60).map(v.get);
+  if(!vals.length){svg.innerHTML=`<text x="${W/2}" y="${H/2}" text-anchor="middle" fill="#8c8c92" font-size="13" font-weight="600">Esperando datos del broker…</text>`;return}
+  let lo=Math.min(...vals),hi=Math.max(...vals);if(hi-lo<v.span){const m=(hi+lo)/2;lo=m-v.span/2;hi=m+v.span/2}
+  const pad=(hi-lo)*.2;lo-=pad;hi+=pad;if(v.min!==null)lo=Math.max(lo,v.min);if(v.max!==null)hi=Math.min(hi,v.max);if(hi-lo<1e-6)hi=lo+1;
+  const n=vals.length,tp=30,bp=26,P=vals.map((x,i)=>[n===1?W/2:W*i/(n-1),tp+(1-Math.min(1,Math.max(0,(x-lo)/(hi-lo))))*(H-tp-bp)]);
+  let o=`<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f0453b" stop-opacity=".2"/><stop offset="1" stop-color="#f0453b" stop-opacity="0"/></linearGradient></defs>`;
+  if(n>1){const d=smooth(P);o+=`<path d="${d}L${P[n-1][0]},${H}L${P[0][0]},${H}Z" fill="url(#g)"/><path d="${d}" fill="none" stroke="#f0453b" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>`}
+  let iM=0,iX=0;vals.forEach((x,i)=>{if(x<vals[iM])iM=i;if(x>vals[iX])iX=i});
+  const ext=(i,below)=>{const[x,y]=P[i];return `<circle cx="${x}" cy="${y}" r="5.5" fill="#fff" stroke="#f0453b" stroke-width="2"/><text x="${Math.min(W-24,Math.max(24,x))}" y="${below?y+22:y-12}" text-anchor="middle" font-size="11" font-weight="700">${f1(vals[i])}${v.unit}</text>`};
+  if(iM!==iX){if(iM!==n-1)o+=ext(iM,true);if(iX!==n-1)o+=ext(iX,false)}
+  const[lx,ly]=P[n-1],tx=Math.min(W-70,Math.max(0,lx-35));
+  o+=`<circle class="halo" cx="${lx}" cy="${ly}" r="11" fill="#f0453b"/><circle cx="${lx}" cy="${ly}" r="9" fill="#f0453b"/><circle cx="${lx}" cy="${ly}" r="3.5" fill="#fff"/>
+  <rect x="${tx}" y="${Math.max(0,ly-40)}" width="70" height="22" rx="11" fill="#1b1b1d"/><text x="${tx+35}" y="${Math.max(0,ly-40)+15}" text-anchor="middle" fill="#fff" font-size="11.5" font-weight="800">${f1(vals[n-1])}${v.unit}</text>`;
+  svg.innerHTML=o}
+/* Gráfica en el tiempo: arriba ventilador (real, objetivo) vs. temperatura; abajo riegos confirmados vs. humedad. Eje común = hora de llegada. */
+function actChart(){
+  const el=$('trSvg'),b=$('trWrap').getBoundingClientRect(),W=Math.max(220,b.width),H=Math.max(110,b.height);el.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  const now=Date.now(),win=120000,t0=now-win,L=36,Rr=4,ax=14,gap=10,h1=Math.round((H-ax-gap)*.58),h2=H-ax-gap-h1,b2=h1+gap,MUT='#8c8c92';
+  const X=t=>L+(W-L-Rr)*(t-t0)/win,cl=v=>Math.max(0,Math.min(100,v)),Y1=p=>3+(1-cl(p)/100)*(h1-6),Y2=p=>b2+3+(1-cl(p)/100)*(h2-6);
+  const A=S.actHist.filter(a=>a.time>=t0-R.actOffline),Sx=S.hist.filter(s=>s.time>=t0-R.actOffline);
+  let o=`<defs><clipPath id="ceClip"><rect x="${L}" y="0" width="${W-L-Rr}" height="${H}"/></clipPath></defs>
+  <rect x="${L}" y="0" width="${W-L-Rr}" height="${h1}" rx="8" fill="#faf9f7"/><rect x="${L}" y="${b2}" width="${W-L-Rr}" height="${h2}" rx="8" fill="#f3f7fe"/>
+  <text x="0" y="11" font-size="9.5" font-weight="800" fill="${MUT}">VENT.</text><text x="0" y="23" font-size="9" fill="${MUT}">100%</text><text x="0" y="${h1-2}" font-size="9" fill="${MUT}">0%</text>
+  <text x="0" y="${b2+11}" font-size="9.5" font-weight="800" fill="${MUT}">RIEGO</text><text x="0" y="${Y2(50)+3}" font-size="9" fill="${MUT}">50%</text>`;
+  if(!A.length&&!Sx.length){o+=`<text x="${(W+L)/2}" y="${H/2}" text-anchor="middle" fill="${MUT}" font-size="12" font-weight="600">Sin datos en los últimos 2 min</text>`;el.innerHTML=o;return}
+  const line=(pts,at)=>pts.length>1?`<path d="M${pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join('L')}" fill="none" ${at}/>`:'';
+  const step=(f,Y)=>{const p=[];A.forEach(a=>{const y=Y(f(a));if(p.length)p.push([X(a.time),p[p.length-1][1]]);p.push([X(a.time),y])});
+    if(p.length)p.push([X(Math.min(now,A[A.length-1].time+R.actOffline)),p[p.length-1][1]]);return p};
+  let g=`<line x1="${L}" x2="${W-Rr}" y1="${Y2(50)}" y2="${Y2(50)}" stroke="#3b82f6" stroke-opacity=".4" stroke-dasharray="2 3"/>`;
+  A.forEach((a,i)=>{if(!a.regando)return;const e=Math.min(A[i+1]?A[i+1].time:now,a.time+R.actOffline);
+    g+=`<rect x="${X(a.time)}" y="${b2+2}" width="${Math.max(2,X(e)-X(a.time))}" height="${h2-4}" rx="3" fill="#3b82f6" fill-opacity=".75"/>`});
+  g+=line(Sx.map(s=>[X(s.time),Y2(s.h)]),`stroke="${MUT}" stroke-width="1.6" stroke-dasharray="4 3"`);
+  g+=line(Sx.map(s=>[X(s.time),Y1((s.t-R.tMin)/(R.tMax-R.tMin)*100)]),`stroke="${MUT}" stroke-width="1.6" stroke-dasharray="4 3"`);
+  g+=line(step(a=>a.obj/R.vMax*100,Y1),`stroke="#1b1b1d" stroke-width="1.4" stroke-dasharray="2 2"`);
+  g+=line(step(a=>a.pct,Y1),`stroke="#f0453b" stroke-width="2.6" stroke-linejoin="round"`);
+  o+=`<g clip-path="url(#ceClip)">${g}</g>`;
+  [[t0,'-2 min','start'],[t0+60000,'-1 min','middle'],[now,'ahora','end']].forEach(([t,l,an])=>o+=`<text x="${X(t)}" y="${H-2}" text-anchor="${an}" font-size="9.5" fill="${MUT}" font-weight="600">${l}</text>`);
+  el.innerHTML=o}
+/* Gauge del ventilador: arco = % real; marca oscura = velocidad objetivo */
+function fanGauge(a){
+  const p=a?a.pct:0,o=a?Math.max(0,Math.min(100,a.obj/R.vMax*100)):0,an=Math.PI*(1-o/100),pt=r=>[100+r*Math.cos(an),100-r*Math.sin(an)];
+  const[x1,y1]=pt(64),[x2,y2]=pt(92),arc='M22,100 A78,78 0 0 1 178,100';
+  $('fanSvg').innerHTML=`<path d="${arc}" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="14" stroke-linecap="round"/>
+  ${p>=.5?`<path d="${arc}" pathLength="100" fill="none" stroke="#fff" stroke-width="14" stroke-linecap="round" stroke-dasharray="${p} 100"/>`:''}
+  ${a?`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#1b1b1d" stroke-width="3.5" stroke-linecap="round"/>`:''}
+  <text x="100" y="86" text-anchor="middle" fill="#fff" font-size="34" font-weight="800">${a?Math.round(p):'--'}<tspan font-size="16"> %</tspan></text>
+  <text x="100" y="104" text-anchor="middle" fill="rgba(255,255,255,.8)" font-size="9.5" font-weight="700">velocidad real</text>`}
+/* ===== Render ===== */
+const chip=(el,txt,color)=>{el.textContent=txt;el.style.color=color;el.style.background=`color-mix(in srgb, ${color} 12%, transparent)`};
+const C={ok:'#2ea36a',warn:'#e9a21b',acc:'#f0453b',mut:'#8c8c92'};
+const LINK={connected:['Conectado',C.ok],connecting:['Conectando…',C.warn],reconnecting:['Reconectando…',C.warn],error:['Error',C.acc],disconnected:['Sin conexión',C.mut]};
+const ACT={online:['Actuadores en línea',C.ok],waiting:['Esperando actuadores…',C.warn],offline:['Actuadores sin conexión',C.acc],nolink:['Actuadores · sin broker',C.mut]};
+function render(){
+  const s=S.last,v=VARS[S.cv],now=Date.now(),stale=s&&now-s.time>R.stale,a=S.act,off=S.actSt!=='online';
+  $('uName').textContent=cfg.name;$('topicPill').textContent=cfg.topic;$('topicSm').textContent=cfg.topic;
+  const L=S.demo?['Demo local',C.warn]:LINK[S.link];$('linkLbl').textContent=L[0];$('linkDot').style.background=L[1];$('linkTxt').textContent=L[0];
+  const AL=ACT[S.actSt];$('actLbl').textContent=AL[0];$('actDot').style.background=AL[1];$('actLink').title=cfg.topicAct;$('actLink').classList.toggle('warnbox',S.actSt==='offline');
+  $('banner').hidden=!(S.link==='error'&&S.detail&&!S.demo);$('bannerTxt').textContent=S.detail||'';
+  const dl=Object.values(S.disc).filter(Boolean);$('discBar').hidden=!dl.length;$('discTxt').innerHTML=dl.map(t=>`<div><b>Discrepancia</b> · ${esc(t)}</div>`).join('');
+  const al=S.events.filter(e=>e.level==='warn'||e.level==='error').length;$('alertBadge').hidden=!al;$('alertBadge').textContent=al>99?'99+':al;
+  const sv={rx:S.rx,act:S.actRx,rej:S.rej+S.actRej,reco:S.reco}[S.stat];$('statVal').textContent=sv;$('statSub').textContent=S.paused?'Recepción en pausa':'Desde que abriste la página';
+  $('statPills').innerHTML=[['rx','Sensores'],['act','Actuadores'],['rej','Rechazados'],['reco','Reintentos']].map(([k,l])=>`<button class="pill ${S.stat===k?'on':''}" data-stat="${k}">${l}</button>`).join('');
+  $('qPause').classList.toggle('on',S.paused);$('qDemo').classList.toggle('on',!!S.demo);
+  if(S.page==='dashboard'){
+    $('varChips').innerHTML=Object.entries(VARS).map(([k,x])=>`<button class="pill ${k===S.cv?'on':''}" data-var="${k}">${x.label}</button>`).join('');
+    const vals=S.hist.slice(-60).map(v.get),thr=S.hist.slice(-30);
+    $('kLbl').textContent=v.label+' actual';$('kVal').innerHTML=s?`${f1(v.get(s))}<span style="font-size:16px;font-weight:600"> ${v.unit}</span>`:'--';
+    $('kRange').textContent=vals.length?`mín ${f1(Math.min(...vals))} · máx ${f1(Math.max(...vals))}`:'sin lecturas';
+    const pc=thr.length?thr.filter(v.ok).length*100/thr.length:0;$('kThr').textContent='Lecturas dentro del umbral · '+v.thr;$('kPct').textContent=Math.round(pc)+'%';$('kBar').style.width=pc+'%';
+    $('miniAlerts').innerHTML=S.events.length?S.events.slice(0,2).map(e=>`<div class="row" style="justify-content:space-between;margin-bottom:6px;align-items:flex-start"><div style="min-width:0"><b style="font-size:12.5px">${esc(e.title)}</b><div class="muted small" style="font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(e.detail)}</div></div><span class="muted small">${hms(e.time)}</span></div>`).join(''):'<span class="muted small">Sin alertas todavía</span>';
+    liveChart();
+    $('lastRead').textContent=s?'Última lectura '+hms(s.time):'—';
+    const st=S.link==='connected'||S.demo?(!s?['Esperando datos',C.warn]:stale?['Sin datos recientes',C.warn]:['En línea',C.ok]):(S.link==='connecting'||S.link==='reconnecting'?['Conectando…',C.warn]:['Sin conexión',C.mut]);chip($('sensChip'),...st);
+    const cells=[['1',s&&s.h,'%',s&&s.h/100,s?(s.h<R.humedadRiego?['Bajo 50 %',C.acc]:['Normal',C.ok]):['Sin datos',C.mut]],
+      ['2',s&&s.t,'°C',s&&s.t/50,s?(pasos(s.t)>0?['Sobre 25 °C',C.warn]:['Normal',C.ok]):['Sin datos',C.mut]],
+      ['3',s&&s.l,'%',s&&s.l/100,s?(s.l>R.luz?['Sobre 60 %',C.warn]:['Normal',C.ok]):['Sin datos',C.mut]]];
+    for(const[i,val,u,fr,c]of cells){$('n'+i).innerHTML=s?`${f1(val)} <small>${u}</small>`:'--';$('b'+i).style.width=Math.min(100,Math.max(0,(fr||0)*100))+'%';chip($('c'+i),...c)}
+    // --- Actuadores: todo sale del último mensaje de equipo01/actuadores/datos ---
+    const noA=['Sin datos',C.mut],offA=['Sin conexión',C.mut];
+    chip($('pumpChip'),...(!a?noA:off?offA:a.activa?['Encendida',C.acc]:['Apagada',C.ok]));
+    $('ring').setAttribute('stroke-dasharray',a&&a.regando?'213.6 214':'0 214');$('drop').style.opacity=a&&a.activa?1:.35;
+    $('pumpReg').textContent=a?(a.regando?'En ventana de riego':'Fuera de ventana de riego'):'—';
+    $('pumpPasos').textContent=a?`${a.pasosB} pasos en el último reporte`:'';$('pumpCnt').textContent='Riegos confirmados: '+S.riegos;
+    $('pumpFoot').textContent=a&&off?'Último reporte '+hms(a.time):'Riega si humedad < 50 %';
+    const ang=a?a.ang:0;chip($('awnChip'),...(!a?noA:off?offA:a.estado==='abierto'?['Abierto',C.warn]:['Cerrado',C.ok]));
+    $('awnPanel').style.transform=`rotate(${-Math.max(0,Math.min(90,ang))}deg)`;$('sun').setAttribute('fill',s&&s.l>R.luz?'#ffb020':'#e2dfda');
+    $('awnPct').textContent=Math.round(Math.max(0,Math.min(90,ang))/90*100)+'%';$('awnAng').textContent=a?`Servo ${ang}° · “${a.estado}”`:'Servo --';
+    $('fanChip').textContent=!a?'Sin datos':off?'Sin conexión':a.fanOn?'Girando':'Detenido';fanGauge(a);
+    const fb=(l,x,c)=>`<div class="row" style="gap:8px;margin-top:3px"><span style="width:54px;opacity:.85">${l}</span><div class="bar" style="flex:1;background:rgba(255,255,255,.25)"><i style="width:${Math.max(0,Math.min(100,x/R.vMax*100))}%;background:${c}"></i></div><b style="min-width:64px;text-align:right">${x} p/s</b></div>`;
+    $('fanTxt').innerHTML=a?fb('Objetivo',a.obj,'#1b1b1d')+fb('Real',a.real,'#fff'):'Esperando '+esc(cfg.topicAct)+'…';
+    for(const[id,k]of[['pumpCard','riego'],['fanCard','fan'],['awnCard','toldo']]){$(id).classList.toggle('stale',!!a&&off);$(id).classList.toggle('discr',!!S.disc[k])}
+    actChart();
+    $('logCnt').textContent=S.log.length+' msg';
+    $('logList').innerHTML=S.log.map(l=>l.dir==='sys'?`<div class="sys">${hms(l.time)} · ${esc(l.text)}</div>`:`<div class="b ${l.dir==='out'?'me':''} ${l.dir==='bad'?'bad':''}">${esc(l.text)}<small>${esc(l.tag)} · ${hms(l.time)}</small></div>`).join('');
+    const ll=$('logList');ll.scrollTop=ll.scrollHeight;
+  }
+  if(S.page==='historial'){$('hCnt').textContent=S.hist.length+' lecturas';$('hBody').innerHTML=S.hist.slice().reverse().map(x=>`<tr><td>${hms(x.time)}</td><td>${f1(x.h)} %</td><td>${f1(x.t)} °C</td><td>${f1(x.l)} %</td></tr>`).join('')||'<tr><td colspan="4" class="muted">Aún no hay lecturas.</td></tr>';
+    $('haCnt').textContent=S.actHist.length+' reportes';$('haBody').innerHTML=S.actHist.slice(-150).reverse().map(x=>`<tr><td>${hms(x.time)}</td><td>${x.activa?'Activa':'Apagada'}${x.regando?' · regando':''} (${x.pasosB} pasos)</td><td>${Math.round(x.pct)} % · ${x.real}/${x.obj} p/s</td><td>${esc(x.estado)} · ${x.ang}°</td></tr>`).join('')||'<tr><td colspan="4" class="muted">Aún no hay reportes de actuadores.</td></tr>'}
+  if(S.page==='alertas'){$('aCnt').textContent=S.events.length+' eventos';const col={ok:C.ok,info:C.mut,warn:C.warn,error:C.acc};
+    $('aList').innerHTML=S.events.map(e=>`<div class="row" style="padding:10px 0;border-top:1px solid var(--line);align-items:flex-start"><span class="dot" style="background:${col[e.level]};margin-top:5px"></span><div style="flex:1"><b>${esc(e.title)}</b><div class="muted small">${esc(e.detail)}</div></div><span class="muted small">${hms(e.time)}</span></div>`).join('')||'<span class="muted">Sin eventos todavía</span>'}
+}
+/* ===== Acciones ===== */
+function save(text,name,n){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:'text/csv'}));a.download=name;a.click();toast(`CSV descargado (${n} filas)`)}
+function download(){save('hora,humedad_pct,temperatura_c,luz_pct\n'+S.hist.map(x=>`${new Date(x.time).toISOString()},${x.h},${x.t},${x.l}`).join('\n'),'lecturas.csv',S.hist.length)}
+function downloadAct(){save('hora,ts_esp32,bomba_activa,bomba_regando,bomba_pasos,vent_activo,vent_objetivo,vent_pasos_s,vent_pct,toldo_angulo,toldo_estado\n'+
+  S.actHist.map(a=>[new Date(a.time).toISOString(),a.ts,a.activa,a.regando,a.pasosB,a.fanOn,a.obj,a.real,a.pct,a.ang,a.estado].join(',')).join('\n'),'actuadores.csv',S.actHist.length)}
+function clearAll(){Object.assign(S,{hist:[],last:null,actHist:[],riegos:0,lastPumpActive:null,cond:{riego:null,fan:null,toldo:null}});check();render()}
+function setPage(p){S.page=p;document.querySelectorAll('.page').forEach(e=>e.classList.toggle('on',e.id==='p-'+p));document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('on',b.dataset.page===p));
+  $('title').textContent={dashboard:'Monitoreo del invernadero',historial:'Historial',alertas:'Alertas'}[p];render()}
+/* Demo local: simula AMBOS ESP32 (el de actuadores sigue la lógica del firmware). __dash.fallo('bomba'|'ventilador'|'toldo'|'red') provoca fallas. */
+function demo(){
+  if(S.demo){clearInterval(S.demo);S.demo=null;S.fault=null;sys('Demo detenido');toast('Demo detenido');check();render();return}
+  let h=58,t=24,l=40,k=0;const D={lastW:null,prev:null};S.connAt=Date.now();sys('Demo local: sensores y actuadores simulados');
+  const tick=()=>{k++;const now=Date.now();
+    if(k%4===1){h=Math.min(100,Math.max(20,h+(Math.random()-.55)*7+(S.act&&S.act.regando?3:0)));t=Math.min(60,Math.max(18,t+(Math.random()-.45)*2.2));l=Math.min(100,Math.max(5,50+40*Math.sin(k/32)+(Math.random()-.5)*8));
+      onMessage(cfg.topic,`S1=${h.toFixed(3)};S2=${t.toFixed(3)};S3=${l.toFixed(3)}`)}
+    const s=S.last;if(!s||S.fault==='red')return;
+    if(s.h<R.humedadRiego&&(D.lastW===null||now-D.lastW>=13000))D.lastW=now;
+    const reg=S.fault!=='bomba'&&D.lastW!==null&&now-D.lastW<3000,obj=pasos(s.t),real=S.fault==='ventilador'||!obj?0:Math.round(obj*(.96+Math.random()*.04)),ang=S.fault!=='toldo'&&s.l>R.luz?90:0;
+    const sig=reg+'|'+ang;if(k%4!==1&&sig===D.prev)return;D.prev=sig;
+    onMessage(cfg.topicAct,JSON.stringify({ts:Math.floor(now/1000),bomba:{activa:reg,regando:reg,pasos:reg?2000:0},
+      ventilador:{activo:real>0,objetivo:obj,pasos_s:real,porcentaje:Math.round(real*100/R.vMax)},toldo:{angulo:ang,estado:ang?'abierto':'cerrado'}}))};
+  tick();S.demo=setInterval(tick,500);toast('Modo demo activado (sin broker)');render()}
+function openSettings(){$('fHost').value=cfg.host;$('fPort').value=cfg.port;$('fPath').value=cfg.path;$('fTopic').value=cfg.topic;$('fTopicAct').value=cfg.topicAct;$('fUser').value=cfg.user;$('fPass').value=cfg.pass;$('fName').value=cfg.name;$('fErr').textContent='';$('dlg').showModal()}
+function saveSettings(){
+  const n={host:$('fHost').value.trim(),port:$('fPort').value.trim(),path:$('fPath').value.trim()||'/mqtt',topic:$('fTopic').value.trim(),topicAct:$('fTopicAct').value.trim(),user:$('fUser').value.trim(),pass:$('fPass').value,name:$('fName').value.trim()||'Operador'};
+  if(!n.host||!n.topic||!n.topicAct||!n.user||!/^\d+$/.test(n.port)){$('fErr').textContent='Completa host, puerto numérico, ambos tópicos y usuario.';return}
+  if(n.topic===n.topicAct){$('fErr').textContent='Los tópicos de sensores y actuadores deben ser distintos.';return}
+  Object.assign(cfg,n);for(const k in n)store.set(k,n[k]);$('dlg').close();connect()}
+document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+  if(b.dataset.page)setPage(b.dataset.page);if(b.dataset.var){S.cv=b.dataset.var;render()}if(b.dataset.stat){S.stat=b.dataset.stat;render()}});
+$('openSet').onclick=$('openSet2').onclick=openSettings;$('fCancel').onclick=()=>$('dlg').close();$('fSave').onclick=saveSettings;$('retry').onclick=$('qRe').onclick=connect;
+$('qPause').onclick=()=>{S.paused=!S.paused;sys(S.paused?'Recepción en pausa':'Recepción reanudada');render()};$('qClr').onclick=$('hClr').onclick=clearAll;
+$('qCsv').onclick=download;$('trCsv').onclick=downloadAct;$('qDemo').onclick=demo;$('hHist').onclick=()=>setPage('historial');
+$('sendBtn').onclick=()=>{const t=$('sendIn').value.trim();if(!t)return;const err=publishRaw(t);$('sendErr').textContent=err||'';if(!err)$('sendIn').value='';render()};
+$('sendIn').onkeydown=e=>{if(e.key==='Enter')$('sendBtn').click()};
+window.addEventListener('resize',render);
+if(window.lucide)lucide.createIcons();
+drawMapBg();render();setInterval(()=>{check();render()},500);
+if(cfg.user)connect();else setTimeout(openSettings,300);
+window.__dash={feed:onMessage,S,demo,fallo:k=>{S.fault=k||null;toast(k?'Falla simulada: '+k:'Fallas desactivadas')}};
+</script>
+</body>
+</html>
