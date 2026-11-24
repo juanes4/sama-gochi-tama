@@ -7,3 +7,19 @@ CLAUDE.local.md
 .agents/
 AGENTS.md
 skills-lock.json
+
+# Flutter / Dart
+dashboard-flutter/.dart_tool/
+dashboard-flutter/build/
+dashboard-flutter/.flutter-plugins
+dashboard-flutter/.flutter-plugins-dependencies
+dashboard-flutter/pubspec.lock
+dashboard-flutter/windows/
+dashboard-flutter/linux/
+dashboard-flutter/macos/
+
+# Sistema / editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

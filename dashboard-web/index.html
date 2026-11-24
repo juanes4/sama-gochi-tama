@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dashboard IoT · Equipo 01</title>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+<div class="frame">
+<aside>
+  <div class="row" style="padding:4px"><div class="avatar" style="width:40px"><i data-lucide="user"></i></div><div><div class="muted small">Hola de nuevo,</div><b id="uName">Operador</b></div></div>
+  <div class="card row" style="padding:12px"><div class="avatar" style="background:var(--frame);color:var(--ink);border-radius:12px">E1</div><div><div class="muted small">Proyecto</div><b style="font-size:13px">Equipo 01 · Invernadero</b></div></div>
+  <div class="card nav" style="padding:8px">
+    <button data-page="dashboard" class="on"><i data-lucide="layout-dashboard"></i> Dashboard</button>
+    <button data-page="historial"><i data-lucide="history"></i> Historial</button>
+    <button data-page="alertas"><i data-lucide="bell"></i> Alertas <span class="badge" id="alertBadge" hidden>0</span></button>
+  </div>
+  <div class="card red dark" style="padding:16px">
+    <h3>Mensajes <span class="small" id="linkTxt"></span></h3>
+    <div class="row" style="margin:10px 0;flex-wrap:wrap;gap:6px" id="statPills"></div>
+    <div><span class="big" id="statVal">0</span> <b>&nbsp;msg</b></div>
+    <div class="small" style="opacity:.85" id="statSub">Desde que abriste la página</div>
+  </div>
+  <div class="card quick">
+    <button id="qRe" title="Reconectar"><i data-lucide="refresh-cw"></i></button><button id="qPause" title="Pausar recepción"><i data-lucide="pause" class="i-pause"></i><i data-lucide="play" class="i-play"></i></button>
+    <button id="qClr" title="Limpiar historial"><i data-lucide="trash-2"></i></button><button id="qCsv" title="Descargar CSV"><i data-lucide="download"></i></button>
+    <button id="qDemo" title="Modo demo (datos simulados)"><i data-lucide="flask-conical"></i></button>
+  </div>
+  <button class="add" id="openSet"><span class="round"><i data-lucide="settings"></i></span>Configurar broker</button>
+</aside>
+
+<main>
+  <div class="top"><h1 id="title">Monitoreo del invernadero</h1><div class="topic" id="topicPill"></div>
+    <div class="link"><span class="dot" id="linkDot"></span><span id="linkLbl">Sin conexión</span></div>
+    <div class="link" id="actLink" style="margin-left:0"><span class="dot" id="actDot"></span><span id="actLbl">Actuadores</span></div>
+    <button class="round w" id="openSet2" title="Ajustes del broker"><i data-lucide="settings"></i></button></div>
+  <div class="banner" id="banner" hidden><span id="bannerTxt" style="flex:1"></span><button class="pill on" id="retry">Reintentar</button></div>
+  <div class="banner" id="discBar" hidden style="background:#fff3dc;color:#9a5b00;align-items:flex-start"><i data-lucide="triangle-alert"></i><div id="discTxt" style="flex:1;display:flex;flex-direction:column;gap:3px"></div></div>
+
+  <section class="page on" id="p-dashboard">
+    <div style="display:flex;flex-direction:column;gap:16px">
+    <div class="card hero">
+      <svg class="bg" id="mapBg" preserveAspectRatio="none"></svg>
+      <div class="chips" id="varChips"></div>
+      <div class="plot" id="plot"><svg id="liveSvg"></svg></div>
+      <div class="kpi">
+        <div class="muted small" id="kLbl"></div><div class="v" id="kVal">--</div><div class="muted small" id="kRange"></div>
+        <div style="flex:1"></div>
+        <div class="muted small" id="kThr"></div>
+        <div class="row" style="margin:4px 0 8px"><b style="font-size:24px" id="kPct">0%</b><div class="bar" style="flex:1"><i id="kBar" style="width:0"></i></div></div>
+        <div class="row"><button class="pill on" id="hClr">Limpiar</button><button class="pill" id="hHist">Historial</button></div>
+      </div>
+      <div class="alerts"><div class="row" style="justify-content:space-between"><span class="muted small"><b>Alertas y notificaciones</b></span><span class="round" style="width:24px;height:24px;font-size:12px"><i data-lucide="bell" style="width:13px;height:13px"></i></span></div><div id="miniAlerts" style="margin-top:8px"></div></div>
+    </div>
+
+    <div class="grid2">
+      <div class="card"><h3>Sensores <span class="muted small" id="lastRead">—</span></h3>
+        <div class="row" style="margin-top:8px"><div class="avatar" style="width:32px;height:32px;font-size:15px"><i data-lucide="cpu"></i></div><div style="flex:1;min-width:0"><b style="font-size:13px">ESP32 · sensores</b><div class="muted small" id="topicSm" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></div></div><span class="chip" id="sensChip"></span></div>
+        <div class="cells">
+          <div><span class="muted small"><b>Humedad · S1</b></span><span class="n" id="n1">--</span><div class="bar"><i id="b1"></i></div><span><span class="chip" id="c1"></span></span></div>
+          <div><span class="muted small"><b>Temperatura · S2</b></span><span class="n" id="n2">--</span><div class="bar"><i id="b2"></i></div><span><span class="chip" id="c2"></span></span></div>
+          <div><span class="muted small"><b>Luz · S3</b></span><span class="n" id="n3">--</span><div class="bar"><i id="b3"></i></div><span><span class="chip" id="c3"></span></span></div>
+        </div></div>
+      <div class="card" id="pumpCard"><h3>Bomba de riego <span class="chip" id="pumpChip"></span></h3>
+        <div class="row" style="margin-top:10px"><div style="position:relative;width:76px;height:76px;flex-shrink:0"><svg width="76" height="76" viewBox="0 0 76 76"><circle cx="38" cy="38" r="34" fill="none" stroke="#e9e7e3" stroke-width="8"/><circle id="ring" cx="38" cy="38" r="34" fill="none" stroke="#f0453b" stroke-width="8" stroke-linecap="round" stroke-dasharray="0 214" transform="rotate(-90 38 38)" style="transition:stroke-dasharray .45s"/></svg><span id="drop" style="position:absolute;inset:0;display:grid;place-items:center;color:var(--accent);transition:opacity .3s"><i data-lucide="droplet" style="width:26px;height:26px"></i></span></div>
+          <div style="min-width:0"><div style="font-weight:800;font-size:12.5px" id="pumpReg">—</div><div class="muted small" id="pumpPasos"></div><div style="margin-top:6px;font-weight:800;font-size:12.5px" id="pumpCnt">Riegos confirmados: 0</div></div></div>
+        <div class="muted small" style="position:absolute;left:18px;right:18px;bottom:16px" id="pumpFoot">Riega si humedad &lt; 50 %</div></div>
+      <div class="card" id="awnCard"><h3>Toldo <span class="chip" id="awnChip"></span></h3>
+        <div class="row" style="height:calc(100% - 24px)">
+          <svg viewBox="0 0 150 110" style="flex:1;min-width:0;max-height:100%"><defs><pattern id="hatch" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="#f0453b"/><rect width="3.5" height="8" fill="rgba(255,255,255,.55)"/></pattern></defs>
+            <line x1="0" y1="104" x2="150" y2="104" stroke="#e9e7e3" stroke-width="2"/><line x1="33" y1="104" x2="33" y2="64" stroke="#b9b6b0" stroke-width="5" stroke-linecap="round"/><line x1="126" y1="104" x2="126" y2="64" stroke="#b9b6b0" stroke-width="5" stroke-linecap="round"/><line x1="33" y1="64" x2="126" y2="64" stroke="#d3d0cb" stroke-width="3" stroke-linecap="round"/>
+            <circle id="sun" cx="135" cy="15" r="7" fill="#e2dfda"/><g transform="translate(33 64)"><g id="awnPanel"><rect x="0" y="-9" width="56" height="9" rx="4" fill="url(#hatch)"/></g><circle r="3.5" fill="#1b1b1d"/></g></svg>
+          <div><div style="font-size:34px;font-weight:800" id="awnPct">0%</div><div class="muted small">Apertura</div><div style="margin-top:8px;font-weight:800;font-size:12px" id="awnAng">Servo 0°</div><div class="muted small">Abre si luz &gt; 60 %</div></div></div></div>
+    </div>
+
+    <div class="grid3">
+      <div class="card"><h3><span>Causa → efecto <span class="muted small" style="font-weight:600">últimos 2 min</span></span><button class="round" style="width:30px;height:30px" id="trCsv" title="Descargar CSV de actuadores"><i data-lucide="download"></i></button></h3>
+        <div class="muted" style="display:flex;flex-wrap:wrap;gap:2px 12px;margin-top:4px;font-size:10.5px;font-weight:600"><span><span class="sw" style="background:#f0453b"></span>Vent. real %</span><span><span class="sw dash" style="border-color:#1b1b1d"></span>Objetivo</span><span><span class="sw dash"></span>Temp. 25→75 °C</span><span><span class="sw" style="background:#3b82f6;height:8px"></span>Riego</span><span><span class="sw dash"></span>Humedad</span></div>
+        <div id="trWrap" style="height:calc(100% - 62px);margin-top:4px"><svg id="trSvg" width="100%" height="100%"></svg></div></div>
+      <div class="card red dark dots" id="fanCard" style="padding:18px"><h3 style="color:#fff"><span class="row" style="gap:8px"><i data-lucide="fan"></i>Ventilador</span><span class="chip" id="fanChip" style="background:rgba(255,255,255,.22);color:#fff"></span></h3>
+        <div id="fanWrap" style="position:absolute;left:18px;right:18px;top:46px;bottom:62px"><svg id="fanSvg" width="100%" height="100%" viewBox="0 0 200 110" preserveAspectRatio="xMidYMid meet"></svg></div>
+        <div class="small" style="position:absolute;left:18px;right:18px;bottom:12px" id="fanTxt"></div></div>
+      <div class="card log"><h3>Registro MQTT <span class="muted small" id="logCnt"></span></h3><div id="logList"></div><div class="small" style="color:var(--accent);font-weight:700;min-height:0" id="sendErr"></div>
+        <div class="send"><input id="sendIn" placeholder="Probar: S1=40;S2=30;S3=70 o JSON de actuadores"><button class="round" id="sendBtn" title="Publicar"><i data-lucide="send"></i></button></div></div>
+    </div></div>
+  </section>
+
+  <section class="page" id="p-historial"><div style="display:flex;flex-direction:column;gap:16px"><div class="card"><h3>Historial de sensores <span class="muted small" id="hCnt"></span></h3><div class="scroll" style="max-height:42vh"><table><thead><tr><th>HORA</th><th>HUMEDAD · S1</th><th>TEMPERATURA · S2</th><th>LUZ · S3</th></tr></thead><tbody id="hBody"></tbody></table></div></div>
+    <div class="card"><h3>Historial de actuadores <span class="muted small" id="haCnt"></span></h3><div class="scroll" style="max-height:42vh"><table><thead><tr><th>HORA</th><th>BOMBA</th><th>VENTILADOR</th><th>TOLDO</th></tr></thead><tbody id="haBody"></tbody></table></div></div></div></section>
+  <section class="page" id="p-alertas"><div class="card"><h3>Alertas y eventos <span class="muted small" id="aCnt"></span></h3><div class="scroll" id="aList"></div></div></section>
+</main>
+</div>
+
+<dialog id="dlg"><h2>Conexión al broker EMQX</h2>
+  <div class="muted small">Usa un usuario creado para el dashboard (EMQX → Authentication). Se guarda solo en este navegador. Aquí va el puerto <b>WebSocket seguro</b> (normalmente 8084), no el 8883.</div>
+  <label>Host<input id="fHost"></label><div class="row"><label style="flex:1">Puerto WSS<input id="fPort"></label><label style="flex:1">Ruta<input id="fPath"></label></div>
+  <label>Tópico de sensores<input id="fTopic"></label>
+  <label>Tópico de actuadores<input id="fTopicAct"></label>
+  <div class="row"><label style="flex:1">Usuario<input id="fUser" autocomplete="off"></label><label style="flex:1">Contraseña<input id="fPass" type="password" autocomplete="off"></label></div>
+  <label>Tu nombre<input id="fName"></label>
+  <div class="small" style="color:var(--accent);font-weight:700;margin-top:8px" id="fErr"></div>
+  <div class="act"><button id="fCancel">Cancelar</button><button class="go" id="fSave">Guardar y conectar</button></div></dialog>
+<div id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/mqtt@5.16.1/dist/mqtt.min.js" onerror="this.onerror=null;var s=document.createElement('script');s.src='vendor/mqtt.min.js';document.head.appendChild(s)"></script>
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+name: iot_dashboard
+description: Dashboard IoT en Flutter (escritorio) conectado a EMQX por MQTT sobre TLS.
+publish_to: "none"
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.5.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  mqtt_client: ^10.0.0
+  shared_preferences: ^2.2.0
+  google_fonts: ">=6.2.1 <10.0.0"
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ">=4.0.0 <7.0.0"
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/certs/
